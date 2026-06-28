@@ -1,21 +1,32 @@
 // ====================================================================
-// Next.js instrumentation — chạy MỘT LẦN khi server khởi động.
-// Tự động nạp danh mục cổ phiếu cho Production mới (fire-and-forget).
-// An toàn tuyệt đối: chỉ chạy ở Node runtime, không throw, không chặn boot,
-// không chạy trong lúc build (chỉ khi server thực sự start & có DATABASE_URL).
+// Next.js Instrumentation — chạy MỘT LẦN khi server khởi động.
+// Kích hoạt:
+//   1. Bootstrap danh mục cổ phiếu (nếu DB rỗng)
+//   2. Data Engine: đồng bộ tin tức, vĩ mô, lịch kinh tế
+// An toàn: fire-and-forget, không throw, không chặn boot.
 // ====================================================================
+
 export async function register() {
   if (process.env.NEXT_RUNTIME !== "nodejs") return;
   if (!process.env.DATABASE_URL) {
-    console.warn("[instrumentation] Bỏ qua bootstrap: chưa có DATABASE_URL");
+    console.warn("[instrumentation] Bỏ qua: chưa có DATABASE_URL");
     return;
   }
-  try {
-    const { triggerBootstrap } = await import("@/lib/stock-bootstrap");
-    // Không await — để không làm chậm quá trình khởi động server.
-    triggerBootstrap();
-    console.info("[instrumentation] Đã kích hoạt auto bootstrap danh mục cổ phiếu.");
-  } catch (e) {
-    console.error("[instrumentation] Lỗi khi kích hoạt bootstrap:", e instanceof Error ? e.message : e);
-  }
+  // Kích hoạt song song, không chặn server start
+  setTimeout(async () => {
+    try {
+      const { triggerBootstrap } = await import("@/lib/stock-bootstrap");
+      triggerBootstrap();
+      console.info("[instrumentation] ✓ Stock bootstrap kích hoạt");
+    } catch (e) {
+      console.error("[instrumentation] Stock bootstrap lỗi:", e instanceof Error ? e.message : e);
+    }
+    try {
+      const { triggerDataEngine } = await import("@/lib/data-engine");
+      triggerDataEngine();
+      console.info("[instrumentation] ✓ Data Engine kích hoạt (news + macro + calendar)");
+    } catch (e) {
+      console.error("[instrumentation] Data Engine lỗi:", e instanceof Error ? e.message : e);
+    }
+  }, 2000); // Chờ 2s sau khi server boot xong mới kích hoạt
 }
