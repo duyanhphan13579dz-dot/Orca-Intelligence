@@ -269,6 +269,12 @@ export class DataConnectionError extends Error {
 export async function getEquityResearch(symbol: string): Promise<EquityResearch | undefined> {
   const sym = symbol.toUpperCase();
 
+  // 0. Đảm bảo Master DB đã được nạp (tự bootstrap nếu Production rỗng).
+  try {
+    const { ensureStocksLoaded } = await import("./stock-bootstrap");
+    await ensureStocksLoaded();
+  } catch { /* an toàn, tiếp tục với dữ liệu live */ }
+
   // 1. Tra cứu Master Database (dữ liệu niêm yết thật từ VNStock/WiData)
   let dbRow: typeof stocksTable.$inferSelect | null = null;
   let dbReachable = true;
