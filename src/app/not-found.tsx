@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { Logo } from "@/components/Logo";
+import { OrcaLogo as Logo } from "@/components/brand/OrcaLogo";
 
 export default function NotFound() {
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center text-center">
-      <Logo size={56} showText={false} href={null} />
+      <Logo size={56} variant="icon" href={null} />
       <h1 className="mt-6 text-5xl font-extrabold text-gold">404</h1>
       <p className="mt-2 text-lg">Không tìm thấy trang bạn yêu cầu</p>
       <p className="mt-1 text-sm text-muted">Trang có thể đã bị di chuyển hoặc không tồn tại.</p>
