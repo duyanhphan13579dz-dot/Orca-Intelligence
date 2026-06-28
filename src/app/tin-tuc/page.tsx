@@ -3,6 +3,7 @@ import { PageHeader, ImpactBadge, Badge } from "@/components/ui";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { DataSourceBadge } from "@/components/DataSourceBadge";
 import { LiveBadge } from "@/components/LiveBadge";
+import { BRAND_STICKER_SRC } from "@/components/brand/OrcaLogo";
 import { getRecentNews, getNewsSyncStatus } from "@/lib/data-engine";
 import type { LiveNewsItem } from "@/lib/data-engine";
 import { getNews as getFallbackNews } from "@/lib/market-data";
@@ -30,7 +31,7 @@ function NewsImage({ src, alt, className }: { src: string | null; alt: string; c
   return (
     <div className={`flex items-center justify-center bg-navy/50 ${className}`}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/logo.svg" alt="Orca Financial" className="h-12 w-12 opacity-30" />
+      <img src={BRAND_STICKER_SRC} alt="Orca Financial" className="h-12 w-12 opacity-30" />
     </div>
   );
 }
