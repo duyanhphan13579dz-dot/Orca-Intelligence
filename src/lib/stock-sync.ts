@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { stocks } from "@/db/schema";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, inArray } from "drizzle-orm";
 
 const WIFEED_URL = "https://wifeed.vn/api/thong-tin-co-phieu/danh-sach-ma-chung-khoan";
 const VNDIRECT_URL = "https://dchart-api.vndirect.com.vn/dchart/history";
@@ -86,53 +86,65 @@ function ma(closes: number[], n: number): number {
   return Number((sl.reduce((a, b) => a + b, 0) / sl.length).toFixed(2));
 }
 
-// ---------- SYNC LISTING ----------
-export async function syncListing(): Promise<{ inserted: number; updated: number; delisted: number }> {
+// ---------- SYNC LISTING (bulk upsert — nhanh & ổn định cho Production) ----------
+export async function syncListing(): Promise<{ inserted: number; updated: number; delisted: number; total: number }> {
+  const t0 = Date.now();
   const remote = await fetchListing();
-  let inserted = 0, updated = 0, delisted = 0;
+  console.info(`[stock-sync] Listing: nhận ${remote.length} mã từ WiData`);
 
-  const activeSymbols = new Set<string>();
+  // Tập hợp mã đang giao dịch và mã hủy niêm yết
+  const active = remote.filter((r) => VALID_EXCHANGES.has(r.san));
+  const delistedCodes = remote.filter((r) => r.san === "DELISTING").map((r) => r.code);
 
-  for (const item of remote) {
-    const exchange = item.san;
-    if (!VALID_EXCHANGES.has(exchange)) {
-      if (exchange === "DELISTING") {
-        // Mark as delisted
-        await db.update(stocks)
-          .set({ status: "delisted", updatedAt: new Date() })
-          .where(eq(stocks.symbol, item.code));
-        delisted++;
-      }
-      continue;
-    }
-    activeSymbols.add(item.code);
+  // Đếm số mã đã có trước khi upsert (để tính inserted/updated)
+  const before = await db.select({ c: sql<number>`count(*)` }).from(stocks);
+  const beforeCount = Number(before[0]?.c ?? 0);
 
-    const existing = await db.select({ id: stocks.id }).from(stocks).where(eq(stocks.symbol, item.code));
-    if (existing.length === 0) {
-      await db.insert(stocks).values({
+  // Bulk upsert theo lô (chunk) — dùng ON CONFLICT để tránh select-from-loop
+  const CHUNK = 250;
+  for (let i = 0; i < active.length; i += CHUNK) {
+    const slice = active.slice(i, i + CHUNK);
+    await db.insert(stocks).values(
+      slice.map((item) => ({
         symbol: item.code,
         name: item.fullname_vi,
-        exchange,
-        status: "active",
+        exchange: item.san,
+        status: "active" as const,
         listingUpdatedAt: new Date(item.updated_at),
         updatedAt: new Date(),
-      });
-      inserted++;
-    } else {
-      await db.update(stocks)
-        .set({
-          name: item.fullname_vi,
-          exchange,
-          status: "active",
-          listingUpdatedAt: new Date(item.updated_at),
-          updatedAt: new Date(),
-        })
-        .where(eq(stocks.symbol, item.code));
-      updated++;
+      })),
+    ).onConflictDoUpdate({
+      target: stocks.symbol,
+      set: {
+        name: sql`excluded.name`,
+        exchange: sql`excluded.exchange`,
+        status: sql`'active'`,
+        listingUpdatedAt: sql`excluded.listing_updated_at`,
+        updatedAt: new Date(),
+      },
+    });
+  }
+
+  // Đánh dấu các mã hủy niêm yết (bulk)
+  let delisted = 0;
+  if (delistedCodes.length > 0) {
+    for (let i = 0; i < delistedCodes.length; i += CHUNK) {
+      const slice = delistedCodes.slice(i, i + CHUNK);
+      const res = await db.update(stocks)
+        .set({ status: "delisted", updatedAt: new Date() })
+        .where(inArray(stocks.symbol, slice));
+      delisted += slice.length;
+      void res;
     }
   }
 
-  return { inserted, updated, delisted };
+  const after = await db.select({ c: sql<number>`count(*)` }).from(stocks);
+  const afterCount = Number(after[0]?.c ?? 0);
+  const inserted = Math.max(0, afterCount - beforeCount);
+  const updated = active.length - inserted;
+
+  console.info(`[stock-sync] Listing xong sau ${Date.now() - t0}ms: +${inserted} mới, ~${updated} cập nhật, ${delisted} hủy niêm yết, tổng ${afterCount}`);
+  return { inserted, updated, delisted, total: afterCount };
 }
 
 // ---------- SYNC PRICES (batch, top N by volume/market cap) ----------
