@@ -19,6 +19,7 @@ export function Logo({
         height={size}
         className="rounded-lg ring-1 ring-white/10"
         priority
+        unoptimized
       />
       {showText && (
         <span className="flex flex-col leading-none">
