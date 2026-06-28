@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <!-- Shield background -->
+  <path d="M60 4 L108 22 L108 62 C108 88 86 106 60 116 C34 106 12 88 12 62 L12 22 Z"
+        fill="url(#shield-grad)" stroke="url(#silver-grad)" stroke-width="2.5"/>
+  <!-- Shield inner -->
+  <path d="M60 10 L102 26 L102 62 C102 85 82 102 60 112 C38 102 18 85 18 62 L18 26 Z"
+        fill="url(#navy-grad)" opacity="0.95"/>
+  <!-- Orca whale body -->
+  <ellipse cx="62" cy="58" rx="26" ry="18" fill="#0B1F45" transform="rotate(-20 62 58)"/>
+  <!-- Orca white belly -->
+  <ellipse cx="64" cy="62" rx="14" ry="9" fill="white" opacity="0.92" transform="rotate(-20 64 62)"/>
+  <!-- Orca white eye patch -->
+  <ellipse cx="74" cy="50" rx="5.5" ry="4" fill="white" transform="rotate(-15 74 50)"/>
+  <!-- Eye -->
+  <circle cx="75" cy="50" r="2" fill="#0B1F45"/>
+  <!-- Dorsal fin -->
+  <path d="M65 42 Q72 28 76 36 Q72 38 65 42Z" fill="#0B1F45"/>
+  <!-- Tail fluke -->
+  <path d="M38 68 Q28 78 26 85 Q32 82 37 75 Q40 82 36 90 Q44 86 42 76 Q44 72 38 68Z" fill="#0B1F45"/>
+  <!-- Gold candlestick chart bars -->
+  <rect x="32" y="80" width="5" height="14" rx="1" fill="url(#gold-grad)" opacity="0.9"/>
+  <rect x="41" y="73" width="5" height="21" rx="1" fill="url(#gold-grad)" opacity="0.9"/>
+  <rect x="50" y="85" width="5" height="9" rx="1" fill="#E53935" opacity="0.85"/>
+  <rect x="59" y="76" width="5" height="18" rx="1" fill="url(#gold-grad)" opacity="0.9"/>
+  <rect x="68" y="70" width="5" height="24" rx="1" fill="url(#gold-grad)" opacity="0.9"/>
+  <!-- Wick lines -->
+  <line x1="34.5" y1="77" x2="34.5" y2="80" stroke="url(#gold-grad)" stroke-width="1.2"/>
+  <line x1="43.5" y1="70" x2="43.5" y2="73" stroke="url(#gold-grad)" stroke-width="1.2"/>
+  <line x1="43.5" y1="94" x2="43.5" y2="96" stroke="url(#gold-grad)" stroke-width="1.2"/>
+  <line x1="70.5" y1="66" x2="70.5" y2="70" stroke="url(#gold-grad)" stroke-width="1.2"/>
+  <!-- Gold arrow trending up -->
+  <path d="M54 68 L70 52 L66 52 L78 40 L74 40 L86 28" stroke="url(#gold-grad)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <polygon points="86,28 80,32 84,36" fill="#F5C542"/>
+  <!-- Gradients -->
+  <defs>
+    <linearGradient id="shield-grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#C0C8D8"/>
+      <stop offset="50%" stop-color="#E8EDF5"/>
+      <stop offset="100%" stop-color="#8A96AA"/>
+    </linearGradient>
+    <linearGradient id="silver-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#D0D8E8"/>
+      <stop offset="100%" stop-color="#909AAA"/>
+    </linearGradient>
+    <linearGradient id="navy-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#123A7A"/>
+      <stop offset="100%" stop-color="#08162F"/>
+    </linearGradient>
+    <linearGradient id="gold-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFD86B"/>
+      <stop offset="100%" stop-color="#E0A82E"/>
+    </linearGradient>
+  </defs>
+</svg>
