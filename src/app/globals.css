@@ -75,12 +75,11 @@ body {
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  /* Orca Whale Sticker Watermark — single asset from /orca-watermark.svg */
-  background-image: url("/orca-watermark.svg");
+  background-image: url("/logo.png");
   background-repeat: no-repeat;
-  background-position: center 42%;
-  background-size: min(52vw, 560px);
-  opacity: 0.04;
+  background-position: center 40%;
+  background-size: min(60vw, 640px);
+  opacity: 0.035;
   mix-blend-mode: soft-light;
 }
 
