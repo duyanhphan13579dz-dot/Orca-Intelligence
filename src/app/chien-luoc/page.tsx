@@ -7,7 +7,8 @@ import { LiveBadge } from "@/components/LiveBadge";
 import { ArrowRight, TrendingUp, Activity } from "lucide-react";
 
 export const metadata = { title: "Chiến lược đầu tư" };
-export const revalidate = 900;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function StrategyPage() {
   const strategies = await getStrategiesLive();
