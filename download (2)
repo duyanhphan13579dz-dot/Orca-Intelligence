@@ -1,0 +1,29 @@
+# Chuẩn hóa line-ending & phân loại text/binary cho Git.
+# Mặc định: tự nhận diện text, chuẩn hóa về LF khi commit.
+* text=auto eol=lf
+
+# Mã nguồn & cấu hình (text, LF)
+*.ts    text
+*.tsx   text
+*.js    text
+*.jsx   text
+*.json  text
+*.css   text
+*.scss  text
+*.md    text
+*.yml   text
+*.yaml  text
+*.env   text
+*.sql   text
+
+# Script shell luôn LF; batch file luôn CRLF
+*.sh    text eol=lf
+*.bat   text eol=crlf
+
+# Tệp nhị phân (không chuyển đổi line-ending, không diff)
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.pdf   binary
