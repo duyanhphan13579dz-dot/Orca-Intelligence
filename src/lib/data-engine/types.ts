@@ -1,5 +1,5 @@
 // ====================================================================
-// Shared types for the Real-time Data Engine
+// Data Engine Types — High Performance Architecture v2
 // ====================================================================
 
 export type SyncStatus = "ok" | "syncing" | "error" | "stale";
@@ -10,28 +10,66 @@ export interface SyncResult {
   updated: number;
   skipped: number;
   errors: number;
-  syncedAt: string;        // ISO — thời điểm Orca thu thập
+  syncedAt: string;
   durationMs: number;
+  qualityAvg?: number;    // Điểm chất lượng TB của batch (0-100)
+  retries?: number;
 }
 
+export interface WorkerResult {
+  worker: string;
+  status: "success" | "error" | "partial";
+  results: SyncResult[];
+  totalDurationMs: number;
+  startedAt: string;
+  completedAt: string;
+  error?: string;
+}
+
+export interface EngineRunResult {
+  news: SyncResult[];
+  macro: SyncResult;
+  calendar: SyncResult;
+  totalDurationMs: number;
+  ranAt: string;
+  metrics: EngineMetrics;
+}
+
+export interface EngineMetrics {
+  totalFetchMs: number;
+  totalValidateMs: number;
+  totalSaveMs: number;
+  totalInserted: number;
+  totalSkipped: number;
+  totalErrors: number;
+  successRate: number;       // 0-100 %
+  avgQualityScore: number;   // 0-100
+  sourcesOk: number;
+  sourcesFailed: number;
+}
+
+// ── Dữ liệu tin tức ──
 export interface LiveNewsItem {
   guid: string;
   title: string;
   summary: string;
   aiSummary: string;
-  imageUrl: string | null;  // Ảnh thật từ nguồn (null nếu không có / không được phép)
+  imageUrl: string | null;
   link: string;
   sourceKey: string;
   sourceName: string;
+  sourcePriority: number;     // Mức ưu tiên nguồn (1=cao nhất)
   category: string;
   tags: string[];
   impact: "cao" | "trung bình" | "thấp";
-  publishedAt: string | null;   // ISO UTC — GIỮ NGUYÊN từ nguồn
-  publishedAtRaw: string;       // Chuỗi gốc chưa xử lý
+  qualityScore: number;       // 0-100 điểm chất lượng
+  publishedAt: string | null;
+  publishedAtRaw: string;
   timezone: string;
-  syncedAt: string;             // ISO — Orca sync time
+  syncedAt: string;
 }
 
+// ── Dữ liệu vĩ mô ──
 export interface LiveMacroItem {
   slug: string;
   name: string;
@@ -45,13 +83,16 @@ export interface LiveMacroItem {
   description: string;
   sourceKey: string;
   sourceName: string;
+  sourcePriority: number;
   sourceUrl: string;
-  publishedAt: string | null;   // Giữ nguyên từ nguồn
+  publishedAt: string | null;
   publishedAtRaw: string;
   reportPeriod: string;
   syncedAt: string;
+  qualityScore: number;
 }
 
+// ── Lịch kinh tế ──
 export interface LiveCalendarEvent {
   eventId: string;
   eventDate: string;
@@ -68,3 +109,27 @@ export interface LiveCalendarEvent {
   sourceKey: string;
   syncedAt: string;
 }
+
+// ── Quality scoring constants ──
+export const QUALITY_THRESHOLDS = {
+  MIN_DISPLAY: 40,   // Điểm tối thiểu để hiển thị
+  GOOD: 70,
+  EXCELLENT: 90,
+};
+
+export const SOURCE_PRIORITIES: Record<string, number> = {
+  // Tin tức VN
+  "vnexpress-kinh-doanh": 1,
+  "cafef": 2,
+  "vietstock": 3,
+  // Tin tức quốc tế
+  "reuters": 1,
+  "cnbc-finance": 2,
+  "ft": 3,
+  "marketwatch": 4,
+  "investing-news": 5,
+  // Dữ liệu
+  "worldbank": 1,
+  "fed-static": 1,
+  "sbv-static": 1,
+};
