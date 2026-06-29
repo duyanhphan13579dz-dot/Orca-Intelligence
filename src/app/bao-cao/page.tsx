@@ -2,7 +2,7 @@ import { getIndices, getTopMovers, getAiInsights } from "@/lib/market-data";
 import { PageHeader, Card, SectionTitle, Badge } from "@/components/ui";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { PrintButton } from "@/components/PrintButton";
-import { Logo } from "@/components/Logo";
+import { OrcaLogo as Logo } from "@/components/brand/OrcaLogo";
 import { PriceChange } from "@/components/PriceChange";
 import { formatNumber } from "@/lib/format";
 import Link from "next/link";
