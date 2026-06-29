@@ -14,7 +14,8 @@ export interface RssItem {
   tags: string[];
 }
 
-const UA = "Mozilla/5.0 (compatible; OrcaBot/1.0; +https://orcafinancial.vn)";
+const UA = "Mozilla/5.0 (compatible; OrcaBot/2.0; +https://orcafinancial.vn)";
+const MAX_RETRIES_RSS = 2;
 
 function getTextContent(el: Element | null, tag: string): string {
   if (!el) return "";
@@ -42,14 +43,23 @@ export function isRecentItem(publishedAt: Date | null, maxHours = 24): boolean {
 }
 
 export async function fetchRSS(url: string, maxItems = 30): Promise<RssItem[]> {
-  const res = await fetch(url, {
-    headers: { Accept: "application/rss+xml, application/xml, text/xml, */*", "User-Agent": UA },
-    signal: AbortSignal.timeout(12_000),
-    next: { revalidate: 900 },
-  });
-  if (!res.ok) throw new Error(`RSS ${res.status}: ${url}`);
-  const text = await res.text();
-  return parseRSSText(text, maxItems);
+  let lastErr: unknown;
+  for (let attempt = 1; attempt <= MAX_RETRIES_RSS; attempt++) {
+    try {
+      const res = await fetch(url, {
+        headers: { Accept: "application/rss+xml, application/xml, text/xml, */*", "User-Agent": UA },
+        signal: AbortSignal.timeout(12_000),
+        next: { revalidate: 900 },
+      });
+      if (!res.ok) throw new Error(`RSS HTTP ${res.status}`);
+      const text = await res.text();
+      return parseRSSText(text, maxItems);
+    } catch (e) {
+      lastErr = e;
+      if (attempt < MAX_RETRIES_RSS) await new Promise((r) => setTimeout(r, 600 * attempt));
+    }
+  }
+  throw new Error(`fetchRSS failed after ${MAX_RETRIES_RSS} attempts: ${url} — ${lastErr instanceof Error ? lastErr.message : lastErr}`);
 }
 
 export function parseRSSText(text: string, maxItems = 30): RssItem[] {
