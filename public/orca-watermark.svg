@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="white" role="presentation" aria-hidden="true">
+  <!-- Orca Financial Watermark — blue whale silhouette, white fill for CSS opacity overlay -->
+  <path d="
+    M 155 82
+    C 168 70, 172 90, 168 108
+    C 162 130, 145 148, 122 158
+    C 105 164, 88 162, 76 152
+    C 60 138, 52 116, 56 96
+    C 60 76, 74 60, 94 55
+    C 110 51, 140 60, 155 82 Z
+  "/>
+  <!-- Dorsal fin -->
+  <path d="M 118 62 Q 132 32 148 44 Q 138 52 128 60 Q 124 62 118 62 Z"/>
+  <!-- Tail -->
+  <path d="M 72 148 Q 52 162 44 178 Q 58 166 68 154 Q 72 168 62 184 Q 78 170 76 156 Q 78 150 72 148 Z"/>
+  <!-- Pec fin -->
+  <path d="M 68 112 Q 44 124 38 144 Q 52 130 68 118 Z" opacity="0.8"/>
+  <!-- Rising arrow -->
+  <path d="M 82 130 Q 96 112 114 92 Q 130 74 148 58" stroke="white" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <polygon points="148,58 138,66 144,72"/>
+</svg>
