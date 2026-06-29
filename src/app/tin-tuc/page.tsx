@@ -9,7 +9,8 @@ import type { LiveNewsItem } from "@/lib/data-engine";
 import { getNews as getFallbackNews } from "@/lib/market-data";
 
 export const metadata = { title: "Tin tức" };
-export const revalidate = 900;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 /** Hiển thị ảnh tin tức: dùng ảnh thật từ nguồn, fallback sang placeholder SVG nếu không có. */
 function NewsImage({ src, alt, className }: { src: string | null; alt: string; className?: string }) {
@@ -75,11 +76,12 @@ export default async function NewsPage({
       category: n.category,
       tags: n.tags,
       impact: impactFromStr(n.impact),
-      // Mock news: KHÔNG gắn thời gian hiện tại, để null để UI hiển thị rõ là fallback
       publishedAt: null,
       publishedAtRaw: "Dữ liệu mẫu — chưa có tin thực. Data Engine đang khởi tạo...",
       timezone: "+07:00",
       syncedAt: new Date().toISOString(),
+      sourcePriority: 5,
+      qualityScore: 0,
     }));
   }
 
