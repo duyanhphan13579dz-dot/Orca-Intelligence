@@ -1,14 +1,18 @@
-import Link from "next/link";
-import { getMacro } from "@/lib/market-data";
-import { Sparkline } from "@/components/Sparkline";
 import { PageHeader, Card, SectionTitle } from "@/components/ui";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { DataSourceBadge } from "@/components/DataSourceBadge";
+import { Sparkline } from "@/components/Sparkline";
+import { getMacroData } from "@/lib/data-engine";
+import { makeSeries } from "@/lib/market-data";
 import { colorOf, formatChange } from "@/lib/format";
+import Link from "next/link";
 
 export const metadata = { title: "Kinh tế vĩ mô" };
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
-export default function KinhTePage() {
-  const macro = getMacro();
+export default async function KinhTePage() {
+  const macro = await getMacroData();
   const vn = macro.filter((m) => m.region === "vn");
   const world = macro.filter((m) => m.region === "world");
 
@@ -19,13 +23,26 @@ export default function KinhTePage() {
           <div className="flex items-start justify-between">
             <div>
               <div className="font-semibold group-hover:text-gold">{m.name}</div>
-              <div className="mt-1 text-2xl font-bold">{m.value}<span className="ml-1 text-xs text-muted">{m.unit}</span></div>
+              <div className="mt-1 text-2xl font-bold">
+                {m.value}
+                <span className="ml-1 text-xs text-muted">{m.unit}</span>
+              </div>
             </div>
-            <Sparkline data={m.series} positive={m.change >= 0} />
+            <Sparkline data={makeSeries(m.slug, m.valueNumeric || 1, 24, 0.04)} positive={m.change >= 0} />
           </div>
           <div className="mt-2 flex items-center justify-between text-xs">
-            <span className="text-muted">Kỳ trước: {m.prev}</span>
-            <span className={colorOf(m.change)}>{formatChange(m.change)}</span>
+            <span className="text-muted">Kỳ trước: {m.prev || "—"}</span>
+            <span className={colorOf(m.change)}>{m.change ? formatChange(m.change) : "—"}</span>
+          </div>
+          <div className="mt-2">
+            <DataSourceBadge
+              sourceName={m.sourceName}
+              publishedAt={m.publishedAt}
+              publishedAtRaw={m.publishedAtRaw}
+              syncedAt={m.syncedAt}
+              compact
+              status="ok"
+            />
           </div>
         </Link>
       ))}
@@ -37,15 +54,15 @@ export default function KinhTePage() {
       <Breadcrumbs items={[{ label: "Kinh tế vĩ mô" }]} />
       <PageHeader
         title="Kinh tế vĩ mô"
-        subtitle="Các chỉ số kinh tế quan trọng của Việt Nam và thế giới: GDP, CPI, lãi suất, PMI, FDI và chính sách của các ngân hàng trung ương."
+        subtitle={`${macro.length} chỉ số. Dữ liệu từ World Bank (GDP, CPI, FDI) và nguồn chính thức các ngân hàng trung ương. Mỗi chỉ số hiển thị kỳ công bố và nguồn dữ liệu thực tế.`}
       />
       <Card className="mb-6">
         <SectionTitle>Việt Nam</SectionTitle>
-        {grid(vn)}
+        {vn.length > 0 ? grid(vn) : <p className="text-muted text-sm">Đang đồng bộ dữ liệu...</p>}
       </Card>
       <Card>
         <SectionTitle>Quốc tế</SectionTitle>
-        {grid(world)}
+        {world.length > 0 ? grid(world) : <p className="text-muted text-sm">Đang đồng bộ dữ liệu...</p>}
       </Card>
     </div>
   );
